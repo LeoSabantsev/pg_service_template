@@ -4,7 +4,10 @@ services:
     postgres:
         container_name: service-postgres
         image: postgres:12
-        env_file: docker-database.env
+        environment: &db_env
+          POSTGRES_DB: pg_service_template_db_1
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
         ports:
           - 5432
         volumes:
@@ -16,11 +19,11 @@ services:
     pg_service_template-container:
         image: ghcr.io/userver-framework/ubuntu-22.04-userver-pg:latest
         privileged: true
-        env_file: docker-database.env
         environment:
-          - PREFIX=${PREFIX:-~/.local}
-          - CCACHE_DIR=/pg_service_template/.ccache
-          - CORES_DIR=/cores
+          <<: *db_env
+          PREFIX: ${PREFIX:-~/.local}
+          CCACHE_DIR: /pg_service_template/.ccache
+          CORES_DIR: /cores
         volumes:
           - .:/pg_service_template:rw
           - ${TC_CORES_DIR:-./.cores}:/cores:rw
